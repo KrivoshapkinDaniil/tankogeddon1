@@ -3,10 +3,14 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "TankPlayerController.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/ArrowComponent.h"
 
 
 ATankPawn::ATankPawn()
 {
+	PrimaryActorTick.bCanEverTick = true;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
 	BodyMesh->SetupAttachment(RootComponent);
@@ -35,10 +39,44 @@ void ATankPawn::RotateRight(float Value)
 	targetRotateAxisValue = Value;
 }
 
+void ATankPawn::Fire()
+{
+	if (Cannon)
+	{
+		Cannon->Fire();
+	}
+}
+
+void ATankPawn::FireSpecial()
+{
+	if (Cannon)
+	{
+		Cannon->FireSpecial();
+	}
+}
+
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	TankController = Cast<ATankPlayerController>(GetController());
+
+	SetupCannon();
+
+}
+
+void ATankPawn::SetupCannon()
+{
+	if (Cannon)
+	{
+		Cannon->Destroy();
+	}
+	FActorSpawnParameters params;
+	params.Instigator = this;
+	params.Owner = this;
+	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
 }
 
 void ATankPawn::Tick(float DeltaTime)
@@ -57,6 +95,18 @@ void ATankPawn::Tick(float DeltaTime)
 	YawRotation = ActorRotation.Yaw + YawRotation;
 	FRotator NewRotation = FRotator(0.0f, YawRotation, 0.0f);
 	SetActorRotation(NewRotation);
+
+	//turret rotation
+	if (TankController)
+	{
+		FVector mousePos = TankController->GetMousePos();
+		FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mousePos);
+		FRotator currRotation = TurretMesh->GetComponentRotation();
+		targetRotation.Pitch = currRotation.Pitch;
+		targetRotation.Roll = currRotation.Roll;
+		TurretMesh->SetWorldRotation(FMath::Lerp(currRotation, targetRotation, TurretRotationInterpolationKey));
+	}
+
 }
 
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
