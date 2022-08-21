@@ -35,6 +35,13 @@ void ACannon::Fire()
 	if (Type == ECannonType::FireProjectile)
 	{
 		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - projectile");
+
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		if (projectile)
+		{
+			projectile->Start();
+		}
+
 		shells = shells - 1;
 	}
 	else

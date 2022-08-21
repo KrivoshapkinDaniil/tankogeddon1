@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Projectile.h"
 #include "GameStructs.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -35,6 +36,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire | Components")
 		float shells = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+		TSubclassOf<AProjectile> ProjectileClass;
+
 
 	FTimerHandle ReloadTimerHandle;
 
