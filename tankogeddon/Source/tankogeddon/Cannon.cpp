@@ -37,6 +37,8 @@ void ACannon::Fire()
 		GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, "Fire - projectile");
 
 		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+		ProjectileSpawnPoint->GetComponentLocation(),
+		ProjectileSpawnPoint->GetComponentRotation();
 		if (projectile)
 		{
 			projectile->Start();
